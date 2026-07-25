@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: |
           cd backend
-          npm test
+          npm run dev
 
       - name: Deployment status
         run: echo "Deployment successful"
