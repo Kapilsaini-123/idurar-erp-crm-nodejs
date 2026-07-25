@@ -1,32 +1,43 @@
+name: cicd pipeline
+
 on:
   push:
-    branch:
+    branches:
       - feat/upgrade-open-source
 
-  jobs:
-    test:
-      runs-on: ubuntu-latest
-      steps:
-        - name: get code
-          uses: actions/checkout@v4
-        - name: install node 20
-          uses: actions/setup-node@v4
-          with:
-            node-version: 20.9.0
+jobs:
+  test:
+    runs-on: self-hosted
 
-        - name: change dir backend
-          run: cd idurar-erp-crm-nodejs/backend
-        - name: cache Dependencies
-          uses: actions/cache@v4
-          with:
-            path: ~/.npm
-            key: ${{ runners.os }}-node-${{ hashFile('**/package-lock.jshon') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: install dependancies
-          run: npm ci
-        - name: setup the database
-          run: npm run setup
-        - name: Backend deployment
-          run: npm run dev
-        - name: deployment status
-          run: echo "deployment successfull"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.9.0
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Setup database
+        run: |
+          cd backend
+          npm run setup
+
+      - name: Run tests
+        run: |
+          cd backend
+          npm test
+
+      - name: Deployment status
+        run: echo "Deployment successful"
