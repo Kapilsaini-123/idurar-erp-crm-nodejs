@@ -1,0 +1,32 @@
+on:
+  push:
+    branch:
+      - feat/upgrade-open-source
+
+  jobs:
+    test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: get code
+          uses: actions/checkout@v4
+        - name: install node 20
+          uses: actions/setup-node@v4
+          with:
+            node-version: 20.9.0
+
+        - name: change dir backend
+          run: cd idurar-erp-crm-nodejs/backend
+        - name: cache Dependencies
+          uses: actions/cache@v4
+          with:
+            path: ~/.npm
+            key: ${{ runners.os }}-node-${{ hashFile('**/package-lock.jshon') }}
+
+        - name: install dependancies
+          run: npm ci
+        - name: setup the database
+          run: npm run setup
+        - name: Backend deployment
+          run: npm run dev
+        - name: deployment status
+          run: echo "deployment successfull"
