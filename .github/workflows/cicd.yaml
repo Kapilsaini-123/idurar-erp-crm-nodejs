@@ -41,3 +41,26 @@ jobs:
 
       - name: Deployment status
         run: echo "Deployment successful"
+
+  frontend_deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: checkout clone
+        uses: actions/checkout@v4
+
+      - name: install node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.9.0
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: cache dependencies
+        uses: actions/cache@v4
+        path: node_modules
+        key: ${{ runner.os }}-node-modules-${{ hostFiles('**/package-locke.json') }}
+
+      - name: run dev
+        run: echo "deployment complete" && npm run dev
