@@ -38,6 +38,7 @@ jobs:
         run: |
           cd backend
           npm run dev
+          sleep 10
 
       - name: Deployment status
         run: echo "Deployment successful"
@@ -59,8 +60,9 @@ jobs:
 
       - name: cache dependencies
         uses: actions/cache@v4
-        path: node_modules
-        key: ${{ runner.os }}-node-modules-${{ hostFiles('**/package-locke.json') }}
+        with:
+           path: node_modules
+           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: run dev
         run: echo "deployment complete" && npm run dev
