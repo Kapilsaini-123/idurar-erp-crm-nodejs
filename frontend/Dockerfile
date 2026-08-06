@@ -1,16 +1,24 @@
-FROM node:20.9.0-alpine
+# Stage 1: Build the React app
+FROM node:20.9.0-alpine AS builder
 
 WORKDIR /usr/src/app
 
 RUN npm install -g npm@10.2.4
 
 COPY package*.json ./
-COPY vite.config.js ./
+RUN npm install
 
 COPY . .
 
-RUN npm install
+RUN npm run build
 
-EXPOSE 3000
+# Stage 2: Serve with Nginx
+FROM nginx:alpine
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
